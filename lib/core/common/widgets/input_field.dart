@@ -39,6 +39,9 @@ class InputField extends StatelessWidget {
               children: [
                 Expanded(
                     child:TextFormField(
+                      onTapOutside: (event) {
+                        FocusManager.instance.primaryFocus?.unfocus();
+                      },
                       readOnly: widget==null?false:true,
                       autofocus: false,
                       cursorColor: Colors.grey,

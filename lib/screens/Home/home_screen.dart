@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:get/get.dart';
@@ -10,11 +11,21 @@ import 'package:date_picker_timeline/date_picker_timeline.dart';
 import 'package:task_manager/screens/Task/add_new_task.dart';
 import 'package:task_manager/screens/home/controller/home_controller.dart';
 
+class HomeScreen extends StatefulWidget {
+  const HomeScreen({super.key});
 
-class HomeScreen extends StatelessWidget {
-  HomeScreen({super.key});
+  @override
+  State<HomeScreen> createState() => _HomeScreenState();
+}
 
+class _HomeScreenState extends State<HomeScreen> {
   final HomeController homeController = Get.put(HomeController());
+  final Map<int, Color> colorMap = {
+    0: pinkClr,
+    1: bluishClr,
+    2: yellowClr,
+  };
+
   Future<void> _logout(BuildContext context) async {
     try {
       await FirebaseAuth.instance.signOut();
@@ -86,6 +97,7 @@ class HomeScreen extends StatelessWidget {
                 margin: const EdgeInsets.only(top: 5),
                 child: Obx(() {
                   return DatePicker(
+                    daysCount: 60,
                     DateTime.now(),
                     height: 100,
                     width: 80,
@@ -120,106 +132,164 @@ class HomeScreen extends StatelessWidget {
                 }),
               ),
               const SizedBox(height: 15),
-              SizedBox(
-                height: MediaQuery.of(context).size.height * 0.6,
-                child: ListView.builder(
-                  itemCount: 3, // Number of items in the list
-                  itemBuilder: (context, index) {
-                    return Padding(
-                      padding: const EdgeInsets.only(
-                        left: 8.0,
-                        right: 8,
-                        bottom: 14,
-                      ),
-                      child: Container(
-                        width: 400,
-                        height: 140,
-                        decoration: BoxDecoration(
-                          color: Colors.pinkAccent,
-                          borderRadius: BorderRadius.circular(20),
+              StreamBuilder(
+                stream: FirebaseFirestore.instance
+                    .collection("tasks")
+                    .where('taskHolder', isEqualTo: user!.uid)
+                    .snapshots(),
+                builder: (context, snapshot) {
+                  if (snapshot.connectionState == ConnectionState.waiting) {
+                    return const Center(
+                      child: CircularProgressIndicator(),
+                    );
+                  }
+                  if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
+                    return Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: [
+                        const SizedBox(
+                          height: 120,
                         ),
-                        child: Padding(
-                          padding: const EdgeInsets.all(18.0),
-                          child: Row(
-                            children: [
-                              const Expanded(
-                                flex: 9,
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Text(
-                                      "Learning DSA",
-                                      style: TextStyle(
-                                        fontWeight: FontWeight.bold,
-                                        color: Colors.white,
-                                        fontSize: 16,
-                                      ),
-                                    ),
-                                    SizedBox(height: 6),
-                                    Row(
+                        Opacity(
+                          opacity: 0.6,
+                          child: Image.asset(
+                            "assets/images/notpad.png",
+                            width: 150,
+                            height: 150,
+                            fit: BoxFit.fill,
+                            filterQuality: FilterQuality.high,
+                          ),
+                        ),
+                        const SizedBox(height: 20),
+                        const Text(
+                          "No tasks available",
+                          style: TextStyle(
+                            color: Colors.white70,
+                            fontSize: 20,
+                          ),
+                        ),
+                      ],
+                    );
+                  }
+                  return SizedBox(
+                    height: MediaQuery.of(context).size.height * 0.6,
+                    child: ListView.builder(
+                      itemCount: snapshot.data?.docs.length,
+                      // Number of items in the list
+                      itemBuilder: (context, index) {
+                        return Padding(
+                          padding: const EdgeInsets.only(
+                            left: 8.0,
+                            right: 8,
+                            bottom: 14,
+                          ),
+                          child: Container(
+                            width: 400,
+                            height: 140,
+                            decoration: BoxDecoration(
+                              color: colorMap[snapshot.data!.docs[index]
+                                      .data()['color']] ??
+                                  Colors.grey,
+                              borderRadius: BorderRadius.circular(20),
+                            ),
+                            child: Padding(
+                              padding: const EdgeInsets.all(18.0),
+                              child: Row(
+                                children: [
+                                  Expanded(
+                                    flex: 9,
+                                    child: Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
                                       children: [
-                                        Icon(
-                                          Icons.watch_later_outlined,
-                                          color: Colors.white,
-                                          size: 20,
-                                        ),
-                                        SizedBox(width: 6),
                                         Text(
-                                          "9:07 PM - 9:59 PM",
-                                          style: TextStyle(
+                                          snapshot.data!.docs[index]
+                                              .data()['title'],
+                                          style: const TextStyle(
+                                            fontWeight: FontWeight.bold,
                                             color: Colors.white,
-                                            fontWeight: FontWeight.w500,
+                                            fontSize: 16,
+                                          ),
+                                        ),
+                                        const SizedBox(height: 6),
+                                        Row(
+                                          children: [
+                                            const Icon(
+                                              Icons.watch_later_outlined,
+                                              color: Colors.white,
+                                              size: 20,
+                                            ),
+                                            const SizedBox(width: 6),
+                                            Text(
+                                              DateFormat.yMd().format(
+                                                DateTime.parse(snapshot
+                                                    .data!.docs[index]
+                                                    .data()['date']),
+                                              ),
+                                              style: const TextStyle(
+                                                color: Colors.white,
+                                                fontWeight: FontWeight.w500,
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                        const SizedBox(height: 6),
+                                        Flexible(
+                                          child: Text(
+                                            snapshot.data!.docs[index]
+                                                .data()['description'],
+                                            style: const TextStyle(
+                                              color: Colors.white,
+                                              fontWeight: FontWeight.w500,
+                                            ),
                                           ),
                                         ),
                                       ],
                                     ),
-                                    SizedBox(height: 6),
-                                    Flexible(
-                                      child: Text(
-                                        "First Revise Arrays Then Solve LeeCode after that Graphs",
-                                        style: TextStyle(
-                                          color: Colors.white,
-                                          fontWeight: FontWeight.w500,
+                                  ),
+                                  Column(
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceBetween,
+                                    children: [
+                                      IconButton(
+                                        onPressed: () async {
+                                          await FirebaseFirestore.instance
+                                              .collection("tasks")
+                                              .doc(
+                                                  snapshot.data!.docs[index].id)
+                                              .delete();
+                                        },
+                                        icon: const Icon(
+                                          Icons.delete_forever_outlined,
+                                          color: Colors.white70,
                                         ),
                                       ),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                              Column(
-                                mainAxisAlignment:
-                                MainAxisAlignment.spaceBetween,
-                                children: [
-                                  IconButton(
-                                    onPressed: () {},
-                                    icon: const Icon(
-                                      Icons.delete_outline,
-                                      color: Colors.white70,
-                                    ),
-                                  ),
-                                  Obx(() {
-                                    return Checkbox(
-                                      value: homeController.isChecked.value,
-                                      onChanged: (bool? value) {
-                                        homeController.toggleCheckbox(
-                                            value ?? false);
-                                      },
-                                      checkColor: Colors.green,
-                                      activeColor: Colors.white,
-                                      side: const BorderSide(
-                                        color: Colors.white,
-                                      ),
-                                    );
-                                  }),
+                                      Obx(() {
+                                        return Checkbox(
+                                          value: homeController.isChecked.value,
+                                          onChanged: (bool? value) {
+                                            homeController
+                                                .toggleCheckbox(value ?? false);
+                                          },
+                                          checkColor: Colors.green,
+                                          activeColor: Colors.white,
+                                          side: const BorderSide(
+                                            color: Colors.white,
+                                          ),
+                                        );
+                                      }),
+                                    ],
+                                  )
                                 ],
-                              )
-                            ],
+                              ),
+                            ),
                           ),
-                        ),
-                      ),
-                    );
-                  },
-                ),
+                        );
+                      },
+                    ),
+                  );
+                },
               ),
             ],
           ),

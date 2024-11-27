@@ -34,8 +34,8 @@ class _SignInScreenState extends State<SignInScreen> {
 
   Future<bool> loginUserWithEmailAndPassword() async {
     try {
-      final userCredentials = await FirebaseAuth.instance
-          .signInWithEmailAndPassword(
+      final userCredentials =
+          await FirebaseAuth.instance.signInWithEmailAndPassword(
         email: _usernameController.text.trim(),
         password: _passwordController.text.trim(),
       );
@@ -53,8 +53,12 @@ class _SignInScreenState extends State<SignInScreen> {
         borderColor: Colors.red,
         borderWidth: 1,
         colorText: Colors.white,
-        icon: const Icon(Icons.dangerous_outlined,size: 28,),
-        snackPosition: SnackPosition.TOP, // Position (BOTTOM/TOP)
+        icon: const Icon(
+          Icons.dangerous_outlined,
+          size: 28,
+        ),
+        snackPosition: SnackPosition.TOP,
+        // Position (BOTTOM/TOP)
         duration: const Duration(seconds: 3),
       );
       return false; // Login failed
@@ -92,7 +96,8 @@ class _SignInScreenState extends State<SignInScreen> {
                       artBoard.addController(stateMachineController!);
                       isChecking =
                           stateMachineController?.findInput('isChecking');
-                      isHandsUp = stateMachineController?.findInput('isHandsUp');
+                      isHandsUp =
+                          stateMachineController?.findInput('isHandsUp');
                       trigSuccess =
                           stateMachineController?.findInput('trigSuccess');
                       trigFail = stateMachineController?.findInput('trigFail');
@@ -122,20 +127,17 @@ class _SignInScreenState extends State<SignInScreen> {
                       decoration: InputDecoration(
                         labelText: 'Email',
                         focusedBorder: OutlineInputBorder(
-                          borderSide: const BorderSide(
-                            color: Colors.white,
-                            width: 1,
-                            
-                          ),
-                            borderRadius:BorderRadius.circular(12)
-                        ),
+                            borderSide: const BorderSide(
+                              color: Colors.white,
+                              width: 1,
+                            ),
+                            borderRadius: BorderRadius.circular(12)),
                         enabledBorder: OutlineInputBorder(
-                          borderSide: const BorderSide(
-                            color: Colors.white,
-                            width: 1,
-                          ),
-                            borderRadius:BorderRadius.circular(12)
-                        ),
+                            borderSide: const BorderSide(
+                              color: Colors.white,
+                              width: 1,
+                            ),
+                            borderRadius: BorderRadius.circular(12)),
                         errorBorder: const OutlineInputBorder(
                             borderSide:
                                 BorderSide(color: Colors.red, width: 1)),
@@ -156,7 +158,6 @@ class _SignInScreenState extends State<SignInScreen> {
                     TextFormField(
                       onTapOutside: (event) {
                         FocusManager.instance.primaryFocus?.unfocus();
-
                       },
                       style: const TextStyle(color: Colors.white),
                       onChanged: (value) {
@@ -170,19 +171,17 @@ class _SignInScreenState extends State<SignInScreen> {
                       decoration: InputDecoration(
                         labelText: 'Password',
                         focusedBorder: OutlineInputBorder(
-                          borderSide: const BorderSide(
-                            color: Colors.white,
-                            width: 1,
-                          ),
-                            borderRadius:BorderRadius.circular(12)
-                        ),
+                            borderSide: const BorderSide(
+                              color: Colors.white,
+                              width: 1,
+                            ),
+                            borderRadius: BorderRadius.circular(12)),
                         enabledBorder: OutlineInputBorder(
-                          borderSide: const BorderSide(
-                            color: Colors.white,
-                            width: 1,
-                          ),
-                            borderRadius:BorderRadius.circular(12)
-                        ),
+                            borderSide: const BorderSide(
+                              color: Colors.white,
+                              width: 1,
+                            ),
+                            borderRadius: BorderRadius.circular(12)),
                         errorBorder: const OutlineInputBorder(
                             borderSide:
                                 BorderSide(color: Colors.red, width: 1)),
@@ -215,7 +214,8 @@ class _SignInScreenState extends State<SignInScreen> {
 
                           try {
                             // Attempt login and handle result
-                            final isSuccess = await loginUserWithEmailAndPassword();
+                            final isSuccess =
+                                await loginUserWithEmailAndPassword();
 
                             if (isSuccess) {
                               // Trigger success animation
