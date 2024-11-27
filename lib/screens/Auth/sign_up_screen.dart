@@ -62,25 +62,30 @@ class _SignUpScreenState extends State<SignUpScreen> {
                 child: Column(
                   children: [
                     TextFormField(
+                      onTapOutside: (event) {
+                        FocusManager.instance.primaryFocus?.unfocus();
+                      },
                       style: const TextStyle(color: Colors.white),
-                      decoration: const InputDecoration(
+                      decoration: InputDecoration(
                         labelText: 'Email',
                         focusedBorder: OutlineInputBorder(
-                          borderSide: BorderSide(
+                          borderSide: const BorderSide(
                             color: Colors.white,
                             width: 1,
                           ),
+                            borderRadius:BorderRadius.circular(12)
                         ),
                         enabledBorder: OutlineInputBorder(
-                          borderSide: BorderSide(
+                          borderSide: const BorderSide(
                             color: Colors.white,
                             width: 1,
                           ),
+                            borderRadius:BorderRadius.circular(12)
                         ),
-                        errorBorder: OutlineInputBorder(
+                        errorBorder: const OutlineInputBorder(
                             borderSide:
                                 BorderSide(color: Colors.red, width: 1)),
-                        focusedErrorBorder: OutlineInputBorder(
+                        focusedErrorBorder: const OutlineInputBorder(
                             borderSide: BorderSide(color: Colors.red)),
                       ),
                       controller: _usernameController,
@@ -95,26 +100,31 @@ class _SignUpScreenState extends State<SignUpScreen> {
                       height: 12,
                     ),
                     TextFormField(
+                      onTapOutside: (event) {
+                        FocusManager.instance.primaryFocus?.unfocus();
+                      },
                       style: const TextStyle(color: Colors.white),
                       obscureText: true,
-                      decoration: const InputDecoration(
+                      decoration: InputDecoration(
                         labelText: 'Password',
                         focusedBorder: OutlineInputBorder(
-                          borderSide: BorderSide(
+                          borderSide: const BorderSide(
                             color: Colors.white,
                             width: 1,
                           ),
+                            borderRadius:BorderRadius.circular(12)
                         ),
                         enabledBorder: OutlineInputBorder(
-                          borderSide: BorderSide(
+                          borderSide: const BorderSide(
                             color: Colors.white,
                             width: 1,
                           ),
+                            borderRadius:BorderRadius.circular(12)
                         ),
-                        errorBorder: OutlineInputBorder(
+                        errorBorder: const OutlineInputBorder(
                             borderSide:
                                 BorderSide(color: Colors.red, width: 1)),
-                        focusedErrorBorder: OutlineInputBorder(
+                        focusedErrorBorder: const OutlineInputBorder(
                             borderSide: BorderSide(color: Colors.red)),
                       ),
                       validator: (value) {

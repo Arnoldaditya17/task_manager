@@ -7,21 +7,17 @@ import 'package:task_manager/core/common/widgets/button.dart';
 import 'package:task_manager/core/theme/theme.dart';
 import 'package:task_manager/screens/Auth/sign_in_screen.dart';
 import 'package:date_picker_timeline/date_picker_timeline.dart';
+import 'package:task_manager/screens/Task/add_new_task.dart';
+import 'package:task_manager/screens/home/controller/home_controller.dart';
 
-class HomeScreen extends StatefulWidget {
-  const HomeScreen({super.key});
 
-  @override
-  State<HomeScreen> createState() => _HomeScreenState();
-}
+class HomeScreen extends StatelessWidget {
+  HomeScreen({super.key});
 
-class _HomeScreenState extends State<HomeScreen> {
-  DateTime _selectedDate = DateTime.now();
-
+  final HomeController homeController = Get.put(HomeController());
   Future<void> _logout(BuildContext context) async {
     try {
       await FirebaseAuth.instance.signOut();
-      // Navigate using Get package for consistency
       Get.offAll(() => const SignInScreen());
     } on FirebaseAuthException catch (e) {
       Get.snackbar(
@@ -45,61 +41,20 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   Widget build(BuildContext context) {
     final user = FirebaseAuth.instance.currentUser;
-
     return Scaffold(
+      backgroundColor: Colors.black87,
       appBar: AppBar(
         leadingWidth: 70,
         leading: TextButton(
-            onPressed: () => _logout(context),
-            child: const Icon(
-              Icons.login_sharp,
-              color: Colors.white,
-            )),
+          onPressed: () => _logout(context),
+          child: const Icon(
+            Icons.login_sharp,
+            color: Colors.white,
+          ),
+        ),
         iconTheme: const IconThemeData(color: Colors.white),
         backgroundColor: Colors.black87,
         centerTitle: true,
-        actions: [
-          Padding(
-            padding: const EdgeInsets.only(right: 8.0),
-            child: InkWell(
-              onTap: () {
-                Get.bottomSheet(
-                  Container(
-                    color: Colors.white,
-                    child: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        const Text('Your content goes here'),
-                        ElevatedButton(
-                          onPressed: () {
-                            Get.back(); // Close bottom sheet
-                          },
-                          child: const Text('Close'),
-                        ),
-                      ],
-                    ),
-                  ),
-                );
-              },
-              child: CircleAvatar(
-                radius: 20,
-                child: ClipOval(
-                  child: Image.network(
-                    user?.photoURL ?? // Use user's profile picture if available
-                        'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQ_6k_r65VVA59_EVVyIHdkohe5wPapVJE3zg&s',
-                    fit: BoxFit.fill,
-                    width: 40,
-                    height: 40,
-                    errorBuilder: (context, error, stackTrace) => const Icon(
-                      Icons.account_circle,
-                      size: 40,
-                    ), // Handle image load errors gracefully
-                  ),
-                ),
-              ),
-            ),
-          ),
-        ],
       ),
       body: SingleChildScrollView(
         child: Padding(
@@ -114,61 +69,73 @@ class _HomeScreenState extends State<HomeScreen> {
                     children: [
                       Text(
                         DateFormat.yMMMMd().format(DateTime.now()),
-                        style: AppTheme.subHeadingStyle,
+                        style: TAppTheme.subHeadingStyle,
                       ),
-                      Text('Today', style: AppTheme.headingStyle),
+                      Text('Today', style: TAppTheme.headingStyle),
                     ],
                   ),
-                  const Button(label: '+ Add Task', onTap: null),
+                  Button(
+                    label: '+ Add Task',
+                    onTap: () {
+                      Get.to(() => const AddNewTask());
+                    },
+                  ),
                 ],
               ),
               Container(
                 margin: const EdgeInsets.only(top: 5),
-                child: DatePicker(
-                  DateTime.now(),
-                  height: 100,
-                  width: 80,
-                  initialSelectedDate: DateTime.now(),
-                  selectionColor: bluishClr,
-                  selectedTextColor: Colors.white,
-                  dateTextStyle: GoogleFonts.lato(
-                    textStyle: const TextStyle(
+                child: Obx(() {
+                  return DatePicker(
+                    DateTime.now(),
+                    height: 100,
+                    width: 80,
+                    initialSelectedDate: homeController.selectedDate.value,
+                    selectionColor: bluishClr,
+                    selectedTextColor: Colors.white,
+                    dateTextStyle: GoogleFonts.lato(
+                      textStyle: const TextStyle(
                         fontSize: 20,
                         fontWeight: FontWeight.w600,
-                        color: Colors.grey),
-                  ),
-                  monthTextStyle: GoogleFonts.lato(
-                    textStyle: const TextStyle(
+                        color: Colors.grey,
+                      ),
+                    ),
+                    monthTextStyle: GoogleFonts.lato(
+                      textStyle: const TextStyle(
                         fontSize: 12,
                         fontWeight: FontWeight.w600,
-                        color: Colors.grey),
-                  ),
-                  dayTextStyle: GoogleFonts.lato(
-                    textStyle: const TextStyle(
+                        color: Colors.grey,
+                      ),
+                    ),
+                    dayTextStyle: GoogleFonts.lato(
+                      textStyle: const TextStyle(
                         fontSize: 12,
                         fontWeight: FontWeight.w600,
-                        color: Colors.grey),
-                  ),
-                  onDateChange: (date) {
-                    _selectedDate = date;
-                  },
-                ),
+                        color: Colors.grey,
+                      ),
+                    ),
+                    onDateChange: (date) {
+                      homeController.updateSelectedDate(date);
+                    },
+                  );
+                }),
               ),
-              const SizedBox(
-                height: 12,
-              ),
+              const SizedBox(height: 15),
               SizedBox(
-                height: 500,
+                height: MediaQuery.of(context).size.height * 0.6,
                 child: ListView.builder(
-                  itemCount: 2, // Number of items in the list
+                  itemCount: 3, // Number of items in the list
                   itemBuilder: (context, index) {
                     return Padding(
-                      padding: const EdgeInsets.all(6.0),
+                      padding: const EdgeInsets.only(
+                        left: 8.0,
+                        right: 8,
+                        bottom: 14,
+                      ),
                       child: Container(
-                        width: 400, // Set the desired width
-                        height: 120, // Set the desired height
+                        width: 400,
+                        height: 140,
                         decoration: BoxDecoration(
-                          color: yellowClr,
+                          color: Colors.pinkAccent,
                           borderRadius: BorderRadius.circular(20),
                         ),
                         child: Padding(
@@ -176,56 +143,76 @@ class _HomeScreenState extends State<HomeScreen> {
                           child: Row(
                             children: [
                               const Expanded(
-                                flex: 8,
+                                flex: 9,
                                 child: Column(
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
                                     Text(
                                       "Learning DSA",
                                       style: TextStyle(
-                                          fontWeight: FontWeight.bold),
+                                        fontWeight: FontWeight.bold,
+                                        color: Colors.white,
+                                        fontSize: 16,
+                                      ),
                                     ),
-                                    SizedBox(
-                                      height: 6,
-                                    ),
+                                    SizedBox(height: 6),
                                     Row(
                                       children: [
-                                        Icon(Icons.watch_later_outlined),
-                                        SizedBox(
-                                          width: 6,
+                                        Icon(
+                                          Icons.watch_later_outlined,
+                                          color: Colors.white,
+                                          size: 20,
                                         ),
-                                        Text("9:07 PM - 9:59 PM"),
+                                        SizedBox(width: 6),
+                                        Text(
+                                          "9:07 PM - 9:59 PM",
+                                          style: TextStyle(
+                                            color: Colors.white,
+                                            fontWeight: FontWeight.w500,
+                                          ),
+                                        ),
                                       ],
                                     ),
-                                    SizedBox(
-                                      height: 6,
+                                    SizedBox(height: 6),
+                                    Flexible(
+                                      child: Text(
+                                        "First Revise Arrays Then Solve LeeCode after that Graphs",
+                                        style: TextStyle(
+                                          color: Colors.white,
+                                          fontWeight: FontWeight.w500,
+                                        ),
+                                      ),
                                     ),
-                                    Text(
-                                        "First Revise Arrays Then Solve LeetCode after that Graphs",style: TextStyle(
-                                      overflow: TextOverflow.ellipsis
-                                    ),)
                                   ],
                                 ),
                               ),
-                              const VerticalDivider(
-                                endIndent: 10,
-                                indent: 10,
-                                color: Colors.white38,
-                              ),
-
                               Column(
-                                mainAxisAlignment: MainAxisAlignment.center,
+                                mainAxisAlignment:
+                                MainAxisAlignment.spaceBetween,
                                 children: [
-                                  Transform.rotate(
-                                    angle: -1.5708, // -90 degrees in radians (-π/2)
-                                    child: const Text(
-                                      "TODO",
-                                      style: TextStyle(fontSize: 12, color: Colors.green),
+                                  IconButton(
+                                    onPressed: () {},
+                                    icon: const Icon(
+                                      Icons.delete_outline,
+                                      color: Colors.white70,
                                     ),
                                   ),
+                                  Obx(() {
+                                    return Checkbox(
+                                      value: homeController.isChecked.value,
+                                      onChanged: (bool? value) {
+                                        homeController.toggleCheckbox(
+                                            value ?? false);
+                                      },
+                                      checkColor: Colors.green,
+                                      activeColor: Colors.white,
+                                      side: const BorderSide(
+                                        color: Colors.white,
+                                      ),
+                                    );
+                                  }),
                                 ],
                               )
-
                             ],
                           ),
                         ),

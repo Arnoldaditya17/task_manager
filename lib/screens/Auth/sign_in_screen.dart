@@ -1,8 +1,6 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:get/get_core/src/get_main.dart';
-import 'package:get/get_navigation/src/snackbar/snackbar.dart';
 import 'package:rive/rive.dart' as rive;
 import 'package:task_manager/screens/Auth/sign_up_screen.dart';
 import 'package:task_manager/screens/home/home_screen.dart';
@@ -68,10 +66,6 @@ class _SignInScreenState extends State<SignInScreen> {
     return Scaffold(
       backgroundColor: Colors.black87,
       appBar: AppBar(
-        title: const Text(
-          "Login Page",
-          style: TextStyle(color: Colors.white),
-        ),
         centerTitle: true,
         backgroundColor: Colors.transparent,
       ),
@@ -82,36 +76,41 @@ class _SignInScreenState extends State<SignInScreen> {
             mainAxisAlignment: MainAxisAlignment.center,
             // Aligns content to center vertically
             children: [
-              SizedBox(
-                height: 250,
-                width: 400,
-                child: rive.RiveAnimation.asset(
-                  animationLink,
-                  fit: BoxFit.fill,
-                  stateMachines: const ['Login Machine'],
-                  onInit: (artBoard) {
-                    stateMachineController =
-                        rive.StateMachineController.fromArtboard(
-                            artBoard, 'Login Machine');
-                    if (stateMachineController == null) return;
-                    artBoard.addController(stateMachineController!);
-                    isChecking =
-                        stateMachineController?.findInput('isChecking');
-                    isHandsUp = stateMachineController?.findInput('isHandsUp');
-                    trigSuccess =
-                        stateMachineController?.findInput('trigSuccess');
-                    trigFail = stateMachineController?.findInput('trigFail');
-                  },
+              ClipOval(
+                child: SizedBox(
+                  height: 230,
+                  width: 230,
+                  child: rive.RiveAnimation.asset(
+                    animationLink,
+                    fit: BoxFit.fill,
+                    stateMachines: const ['Login Machine'],
+                    onInit: (artBoard) {
+                      stateMachineController =
+                          rive.StateMachineController.fromArtboard(
+                              artBoard, 'Login Machine');
+                      if (stateMachineController == null) return;
+                      artBoard.addController(stateMachineController!);
+                      isChecking =
+                          stateMachineController?.findInput('isChecking');
+                      isHandsUp = stateMachineController?.findInput('isHandsUp');
+                      trigSuccess =
+                          stateMachineController?.findInput('trigSuccess');
+                      trigFail = stateMachineController?.findInput('trigFail');
+                    },
+                  ),
                 ),
               ),
               const SizedBox(
-                height: 18,
+                height: 24,
               ),
               Form(
                 key: _formkey,
                 child: Column(
                   children: [
                     TextFormField(
+                      onTapOutside: (event) {
+                        FocusManager.instance.primaryFocus?.unfocus();
+                      },
                       style: const TextStyle(color: Colors.white),
                       onChanged: (value) {
                         if (isHandsUp != null) {
@@ -120,24 +119,27 @@ class _SignInScreenState extends State<SignInScreen> {
                         if (isChecking == null) return;
                         isChecking!.change(true);
                       },
-                      decoration: const InputDecoration(
+                      decoration: InputDecoration(
                         labelText: 'Email',
                         focusedBorder: OutlineInputBorder(
-                          borderSide: BorderSide(
+                          borderSide: const BorderSide(
                             color: Colors.white,
                             width: 1,
+                            
                           ),
+                            borderRadius:BorderRadius.circular(12)
                         ),
                         enabledBorder: OutlineInputBorder(
-                          borderSide: BorderSide(
+                          borderSide: const BorderSide(
                             color: Colors.white,
                             width: 1,
                           ),
+                            borderRadius:BorderRadius.circular(12)
                         ),
-                        errorBorder: OutlineInputBorder(
+                        errorBorder: const OutlineInputBorder(
                             borderSide:
                                 BorderSide(color: Colors.red, width: 1)),
-                        focusedErrorBorder: OutlineInputBorder(
+                        focusedErrorBorder: const OutlineInputBorder(
                             borderSide: BorderSide(color: Colors.red)),
                       ),
                       controller: _usernameController,
@@ -152,6 +154,10 @@ class _SignInScreenState extends State<SignInScreen> {
                       height: 12,
                     ),
                     TextFormField(
+                      onTapOutside: (event) {
+                        FocusManager.instance.primaryFocus?.unfocus();
+
+                      },
                       style: const TextStyle(color: Colors.white),
                       onChanged: (value) {
                         if (isChecking != null) {
@@ -161,24 +167,26 @@ class _SignInScreenState extends State<SignInScreen> {
                         isHandsUp!.change(true);
                       },
                       obscureText: true,
-                      decoration: const InputDecoration(
+                      decoration: InputDecoration(
                         labelText: 'Password',
                         focusedBorder: OutlineInputBorder(
-                          borderSide: BorderSide(
+                          borderSide: const BorderSide(
                             color: Colors.white,
                             width: 1,
                           ),
+                            borderRadius:BorderRadius.circular(12)
                         ),
                         enabledBorder: OutlineInputBorder(
-                          borderSide: BorderSide(
+                          borderSide: const BorderSide(
                             color: Colors.white,
                             width: 1,
                           ),
+                            borderRadius:BorderRadius.circular(12)
                         ),
-                        errorBorder: OutlineInputBorder(
+                        errorBorder: const OutlineInputBorder(
                             borderSide:
                                 BorderSide(color: Colors.red, width: 1)),
-                        focusedErrorBorder: OutlineInputBorder(
+                        focusedErrorBorder: const OutlineInputBorder(
                             borderSide: BorderSide(color: Colors.red)),
                       ),
                       validator: (value) {
@@ -214,12 +222,7 @@ class _SignInScreenState extends State<SignInScreen> {
                               trigSuccess!.change(true);
 
                               // Navigate only if login is successful
-                              Navigator.pushReplacement(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (context) => const HomeScreen(),
-                                ),
-                              );
+                              Get.to(() => HomeScreen());
                             } else {
                               // Trigger failure animation
                               trigFail!.change(true);
@@ -268,7 +271,7 @@ class _SignInScreenState extends State<SignInScreen> {
                                           style: TextStyle(
                                             color: Colors.white,
                                             fontSize: 20,
-                                            fontWeight: FontWeight.w500,
+                                            fontWeight: FontWeight.w400,
                                           ),
                                         ), // Show text when not loading
                                 ),

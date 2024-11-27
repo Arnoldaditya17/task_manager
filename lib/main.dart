@@ -35,7 +35,7 @@ class MyApp extends StatelessWidget {
                 );
               }
               if (snapshot.data != null) {
-                return const HomeScreen();
+                return HomeScreen();
               }
               return const SignInScreen();
             }));
