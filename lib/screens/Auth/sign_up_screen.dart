@@ -32,8 +32,35 @@ class _SignUpScreenState extends State<SignUpScreen> {
       );
       print(userCredentials);
     } on FirebaseAuthException catch (e) {
-      print(e.message);
+      Get.snackbar(
+        "Registration Failed",
+        e.message ?? "Something went wrong. Please try again.",
+        backgroundColor: Colors.black87,
+        borderWidth: 1,
+        borderColor: Colors.red,
+        colorText: Colors.white,
+        icon: const Icon(Icons.dangerous_outlined, size: 28),
+        snackPosition: SnackPosition.BOTTOM,
+        duration: const Duration(seconds: 3),
+      );
     }
+  }
+
+  String? _validateEmail(String? value) {
+    if (value == null || value.isEmpty) {
+      return 'Please enter your email';
+    }
+    return null;
+  }
+
+  String? _validatePassword(String? value) {
+    if (value == null || value.isEmpty) {
+      return 'Please enter your password';
+    }
+    if (value.length < 6) {
+      return 'Password must be at least 6 characters long';
+    }
+    return null;
   }
 
   @override
@@ -45,7 +72,6 @@ class _SignUpScreenState extends State<SignUpScreen> {
         child: Center(
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
-            // Aligns content to center vertically
             children: [
               const Text(
                 "Sign Up.",
@@ -73,14 +99,14 @@ class _SignUpScreenState extends State<SignUpScreen> {
                             color: Colors.white,
                             width: 1,
                           ),
-                            borderRadius:BorderRadius.circular(12)
+                          borderRadius: BorderRadius.circular(12),
                         ),
                         enabledBorder: OutlineInputBorder(
                           borderSide: const BorderSide(
                             color: Colors.white,
                             width: 1,
                           ),
-                            borderRadius:BorderRadius.circular(12)
+                          borderRadius: BorderRadius.circular(12),
                         ),
                         errorBorder: const OutlineInputBorder(
                             borderSide:
@@ -89,12 +115,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                             borderSide: BorderSide(color: Colors.red)),
                       ),
                       controller: _usernameController,
-                      validator: (value) {
-                        if (value == null || value.isEmpty) {
-                          return 'Please enter your email';
-                        }
-                        return null;
-                      },
+                      validator: _validateEmail,
                     ),
                     const SizedBox(
                       height: 12,
@@ -112,14 +133,14 @@ class _SignUpScreenState extends State<SignUpScreen> {
                             color: Colors.white,
                             width: 1,
                           ),
-                            borderRadius:BorderRadius.circular(12)
+                          borderRadius: BorderRadius.circular(12),
                         ),
                         enabledBorder: OutlineInputBorder(
                           borderSide: const BorderSide(
                             color: Colors.white,
                             width: 1,
                           ),
-                            borderRadius:BorderRadius.circular(12)
+                          borderRadius: BorderRadius.circular(12),
                         ),
                         errorBorder: const OutlineInputBorder(
                             borderSide:
@@ -127,12 +148,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                         focusedErrorBorder: const OutlineInputBorder(
                             borderSide: BorderSide(color: Colors.red)),
                       ),
-                      validator: (value) {
-                        if (value == null || value.isEmpty) {
-                          return 'Please enter your password';
-                        }
-                        return null;
-                      },
+                      validator: _validatePassword,
                       controller: _passwordController,
                     ),
                     const SizedBox(
@@ -141,12 +157,13 @@ class _SignUpScreenState extends State<SignUpScreen> {
                     GestureDetector(
                       onTap: () async {
                         if (_formkey.currentState!.validate()) {
-                          // Validate form
                           setState(() {
-                            _isLoading = true; // Show loader
+                            _isLoading = true;
                           });
-                          try {
-                            await createUserWithEmailAndPassword();
+
+                          await createUserWithEmailAndPassword();
+
+                          if (FirebaseAuth.instance.currentUser != null) {
                             Get.snackbar(
                               borderColor: Colors.green,
                               borderWidth: 2,
@@ -156,26 +173,17 @@ class _SignUpScreenState extends State<SignUpScreen> {
                               colorText: Colors.white,
                               snackPosition: SnackPosition.TOP,
                               duration: const Duration(seconds: 3),
-                              icon: const Icon(Icons.verified_user_outlined,size: 28,)
+                              icon: const Icon(Icons.verified_user_outlined,
+                                  size: 28),
                             );
-
-                          } on FirebaseAuthException catch (e) {
-                            Get.snackbar(
-                              "Registration Failed", // Title
-                              e.message ?? "Something went wrong. Please try again.", // Message
-                              backgroundColor: Colors.black87,
-                              borderWidth: 1,
-                              borderColor: Colors.red,
-                              colorText: Colors.white,
-                              icon: const Icon(Icons.dangerous_outlined,size: 28,),
-                              snackPosition: SnackPosition.BOTTOM, // Position (BOTTOM/TOP)
-                              duration: const Duration(seconds: 3),
-                            );
-                          } finally {
-                            setState(() {
-                              _isLoading = false; // Hide loader
-                            });
+                            // Clear fields
+                            _usernameController.clear();
+                            _passwordController.clear();
                           }
+
+                          setState(() {
+                            _isLoading = false;
+                          });
                         }
                       },
                       child: Stack(
@@ -186,8 +194,8 @@ class _SignUpScreenState extends State<SignUpScreen> {
                             decoration: BoxDecoration(
                               gradient: const LinearGradient(
                                 colors: [Colors.deepPurple, Colors.pinkAccent],
-                                begin: Alignment.topLeft, // Starting point
-                                end: Alignment.bottomRight, // Ending point
+                                begin: Alignment.topLeft,
+                                end: Alignment.bottomRight,
                               ),
                               borderRadius: BorderRadius.circular(12),
                             ),
@@ -204,7 +212,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                                   child: _isLoading
                                       ? const CircularProgressIndicator(
                                           color: Colors.white,
-                                        ) // Show loader when loading
+                                        )
                                       : const Text(
                                           "Sign Up",
                                           style: TextStyle(
@@ -212,7 +220,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                                             fontSize: 20,
                                             fontWeight: FontWeight.w500,
                                           ),
-                                        ), // Show text when not loading
+                                        ),
                                 ),
                               ),
                             ),
