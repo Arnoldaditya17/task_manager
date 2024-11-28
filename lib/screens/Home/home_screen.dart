@@ -172,12 +172,18 @@ class _HomeScreenState extends State<HomeScreen> {
                       ],
                     );
                   }
+
+                  // Initialize task states
+                  homeController.initializeCheckboxStates(snapshot.data!.docs);
+
                   return SizedBox(
                     height: MediaQuery.of(context).size.height * 0.6,
                     child: ListView.builder(
                       itemCount: snapshot.data?.docs.length,
-                      // Number of items in the list
                       itemBuilder: (context, index) {
+                        final task = snapshot.data!.docs[index];
+                        final taskId = task.id;
+
                         return Padding(
                           padding: const EdgeInsets.only(
                             left: 8.0,
@@ -188,9 +194,8 @@ class _HomeScreenState extends State<HomeScreen> {
                             width: 400,
                             height: 140,
                             decoration: BoxDecoration(
-                              color: colorMap[snapshot.data!.docs[index]
-                                      .data()['color']] ??
-                                  Colors.grey,
+                              color:
+                                  colorMap[task.data()['color']] ?? Colors.grey,
                               borderRadius: BorderRadius.circular(20),
                             ),
                             child: Padding(
@@ -204,8 +209,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                           CrossAxisAlignment.start,
                                       children: [
                                         Text(
-                                          snapshot.data!.docs[index]
-                                              .data()['title'],
+                                          task.data()['title'],
                                           style: const TextStyle(
                                             fontWeight: FontWeight.bold,
                                             color: Colors.white,
@@ -223,9 +227,8 @@ class _HomeScreenState extends State<HomeScreen> {
                                             const SizedBox(width: 6),
                                             Text(
                                               DateFormat.yMd().format(
-                                                DateTime.parse(snapshot
-                                                    .data!.docs[index]
-                                                    .data()['date']),
+                                                DateTime.parse(
+                                                    task.data()['date']),
                                               ),
                                               style: const TextStyle(
                                                 color: Colors.white,
@@ -237,8 +240,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                         const SizedBox(height: 6),
                                         Flexible(
                                           child: Text(
-                                            snapshot.data!.docs[index]
-                                                .data()['description'],
+                                            task.data()['description'],
                                             style: const TextStyle(
                                               color: Colors.white,
                                               fontWeight: FontWeight.w500,
@@ -256,8 +258,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                         onPressed: () async {
                                           await FirebaseFirestore.instance
                                               .collection("tasks")
-                                              .doc(
-                                                  snapshot.data!.docs[index].id)
+                                              .doc(taskId)
                                               .delete();
                                         },
                                         icon: const Icon(
@@ -267,20 +268,24 @@ class _HomeScreenState extends State<HomeScreen> {
                                       ),
                                       Obx(() {
                                         return Checkbox(
-                                          value: homeController.isChecked.value,
+                                          value: homeController
+                                                  .taskCheckStates[taskId]
+                                                  ?.value ??
+                                              false,
                                           onChanged: (bool? value) {
-                                            homeController
-                                                .toggleCheckbox(value ?? false);
+                                            if (value != null) {
+                                              homeController.toggleTaskCheckbox(
+                                                  taskId, value);
+                                            }
                                           },
                                           checkColor: Colors.green,
                                           activeColor: Colors.white,
                                           side: const BorderSide(
-                                            color: Colors.white,
-                                          ),
+                                              color: Colors.white),
                                         );
                                       }),
                                     ],
-                                  )
+                                  ),
                                 ],
                               ),
                             ),
