@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:get/get_common/get_reset.dart';
 import 'package:task_manager/core/theme/theme.dart';
 
 class InputField extends StatelessWidget {

@@ -3,8 +3,6 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:get/get_core/src/get_main.dart';
-import 'package:get/get_navigation/src/snackbar/snackbar.dart';
 import 'package:intl/intl.dart';
 import 'package:task_manager/core/common/widgets/button.dart';
 import 'package:task_manager/core/common/widgets/input_field.dart';
@@ -38,6 +36,7 @@ class _AddNewTaskState extends State<AddNewTask> {
         "description": descriptionController.text.trim(),
         "taskHolder": FirebaseAuth.instance.currentUser!.uid,
         "date": _selectedDate.toIso8601String(),
+        "formattedDate": DateFormat('yyyy-MM-dd').format(_selectedDate),
         "color": _selectedColor,
       });
       print(data);
